@@ -25,6 +25,11 @@
 
 #include <stdio.h>
 
+#ifdef __CHERI_PURE_CAPABILITY__
+#include <cheriintrin.h>
+#endif
+
+
 #define OP_END          0
 #define OP_INC_DP       1
 #define OP_DEC_DP       2
@@ -34,6 +39,8 @@
 #define OP_IN           6
 #define OP_JMP_FWD      7
 #define OP_JMP_BCK      8
+#define OP_BOUNDS_START 9
+#define OP_BOUNDS_END   10
 
 #define SUCCESS         0
 #define FAILURE         1
@@ -47,6 +54,11 @@
 #define STACK_EMPTY()   (SP == 0)
 #define STACK_FULL()    (SP == STACK_SIZE)
 
+#define BSTACK_PUSH(A)   (BSTACK[BSP++] = A)
+#define BSTACK_POP()     (BSTACK[--BSP])
+#define BSTACK_EMPTY()   (BSP == 0)
+#define BSTACK_FULL()    (BSP == STACK_SIZE)
+
 struct instruction_t {
     unsigned short operator;
     unsigned short operand;
@@ -57,6 +69,8 @@ static short data[DATA_SIZE] = {0};
 static struct instruction_t PROGRAM[PROGRAM_SIZE] = {0};
 static unsigned short STACK[STACK_SIZE];
 static unsigned int SP = 0;
+static short* BSTACK[STACK_SIZE];
+static unsigned int BSP = 0;
 
 
 
@@ -90,6 +104,12 @@ int compile_bf(FILE* fp) {
                 PROGRAM[pc].operand = jmp_pc;
                 PROGRAM[jmp_pc].operand = pc;
                 break;
+	    case '{':
+		PROGRAM[pc].operator = OP_BOUNDS_START;
+		break;
+	    case '}':
+		PROGRAM[pc].operator = OP_BOUNDS_END;
+		break;
             default: pc--; break;
         }
         pc++;
@@ -117,6 +137,18 @@ int execute_bf(void) {
             case OP_IN: data[ptr] = (unsigned int)getchar(); break;
             case OP_JMP_FWD: if(!data[ptr]) { pc = PROGRAM[pc].operand; } break;
             case OP_JMP_BCK: if(data[ptr]) { pc = PROGRAM[pc].operand; } break;
+	    case OP_BOUNDS_START:
+#ifdef __CHERI_PURE_CAPABILITY__
+	      BSTACK_PUSH(ptr);
+	      ptr = cheri_bounds_set(ptr,
+				     data[ptr]*sizeof(short));
+#endif
+	      break;
+	    case OP_BOUNDS_END:
+#ifdef __CHERI_PURE_CAPABILITY__
+	      ptr = BSTACK_POP();
+#endif
+	      break;
             default: return FAILURE;
         }
         pc++;
