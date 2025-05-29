@@ -141,6 +141,7 @@ int execute_bf(void) {
 	    case OP_BOUNDS_START:
 #ifdef __CHERI_PURE_CAPABILITY__
 	      BSTACK_PUSH(data);
+	      data = cheri_offset_set(data, (&(data[ptr])-data));
 	      data = cheri_bounds_set(data,
 				     data[ptr]*sizeof(short));
 #endif
