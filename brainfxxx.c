@@ -38,9 +38,9 @@
 #define SUCCESS         0
 #define FAILURE         1
 
-#define PROGRAM_SIZE    152 // @ORIG 4096
-#define STACK_SIZE      8   // @ORIG 512
-#define DATA_SIZE       64  // @ORIG 65536
+#define PROGRAM_SIZE    4096
+#define STACK_SIZE      512
+#define DATA_SIZE       65536
 
 #define STACK_PUSH(A)   (STACK[SP++] = A)
 #define STACK_POP()     (STACK[--SP])
@@ -107,7 +107,7 @@ int execute_bf(void) {
     /* @jsinger, ptr was originally unsigned */
     int ptr = 0;
 
-    while (PROGRAM[pc].operator != OP_END) { 
+    while (PROGRAM[pc].operator != OP_END && ptr>=0 && ptr<DATA_SIZE && pc>=0 && pc <= PROGRAM_SIZE) { 
         switch (PROGRAM[pc].operator) {
             case OP_INC_DP: ptr++; break;
             case OP_DEC_DP: ptr--; break;
