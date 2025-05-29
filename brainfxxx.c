@@ -65,7 +65,8 @@ struct instruction_t {
 };
 
 /* @jsinger, data was originally _unsigned_ short[] */
-static short data[DATA_SIZE] = {0};
+static short data_array[DATA_SIZE] = {0};
+static short *data = &data_array;
 static struct instruction_t PROGRAM[PROGRAM_SIZE] = {0};
 static unsigned short STACK[STACK_SIZE];
 static unsigned int SP = 0;
