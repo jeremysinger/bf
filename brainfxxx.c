@@ -139,14 +139,14 @@ int execute_bf(void) {
             case OP_JMP_BCK: if(data[ptr]) { pc = PROGRAM[pc].operand; } break;
 	    case OP_BOUNDS_START:
 #ifdef __CHERI_PURE_CAPABILITY__
-	      BSTACK_PUSH(ptr);
-	      ptr = cheri_bounds_set(ptr,
+	      BSTACK_PUSH(data);
+	      data = cheri_bounds_set(data,
 				     data[ptr]*sizeof(short));
 #endif
 	      break;
 	    case OP_BOUNDS_END:
 #ifdef __CHERI_PURE_CAPABILITY__
-	      ptr = BSTACK_POP();
+	      data = BSTACK_POP();
 #endif
 	      break;
             default: return FAILURE;
