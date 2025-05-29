@@ -34,6 +34,7 @@
 #define OP_IN           6
 #define OP_JMP_FWD      7
 #define OP_JMP_BCK      8
+#define OP_DUMP         9
 
 #define SUCCESS         0
 #define FAILURE         1
@@ -59,7 +60,15 @@ static unsigned short STACK[STACK_SIZE];
 static unsigned int SP = 0;
 
 
-
+void dump_heap(short *heap, int size) {
+  FILE *fp = fopen("bf.dump", "w");
+  int i;
+  for (i=0; i<size; i++) {
+    fprintf(fp, "%d: %d\n", i, heap[i]);
+  }
+  fclose(fp);
+  return;
+}
 
 
 int compile_bf(FILE* fp) {
@@ -90,6 +99,7 @@ int compile_bf(FILE* fp) {
                 PROGRAM[pc].operand = jmp_pc;
                 PROGRAM[jmp_pc].operand = pc;
                 break;
+       	    case '!': PROGRAM[pc].operator = OP_DUMP; break;
             default: pc--; break;
         }
         pc++;
@@ -117,6 +127,7 @@ int execute_bf(void) {
             case OP_IN: data[ptr] = (unsigned int)getchar(); break;
             case OP_JMP_FWD: if(!data[ptr]) { pc = PROGRAM[pc].operand; } break;
             case OP_JMP_BCK: if(data[ptr]) { pc = PROGRAM[pc].operand; } break;
+	    case OP_DUMP: dump_heap(data, DATA_SIZE); break;
             default: return FAILURE;
         }
         pc++;
