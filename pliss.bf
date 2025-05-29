@@ -1,3 +1,6 @@
++++
+{
+>
 +++++++ init loop counter to 7
 [       start loop (stop when counter hits 0)
 >       move to next data cell
@@ -13,4 +16,4 @@
 .       print char
 ++++++++++ add lots to data cell
 ..      print 2x chars
-
+}
