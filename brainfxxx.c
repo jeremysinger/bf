@@ -25,6 +25,10 @@
 
 #include <stdio.h>
 
+#ifdef __CHERI_PURE_CAPABILITY__ 
+#include <cheriintrin.h>
+#endif
+
 #define OP_END          0
 #define OP_INC_DP       1
 #define OP_DEC_DP       2
@@ -59,7 +63,7 @@ static struct instruction_t PROGRAM[PROGRAM_SIZE] = {0};
 static unsigned short STACK[STACK_SIZE];
 static unsigned int SP = 0;
 
-
+// @jsinger
 void dump_heap(short *heap, int size) {
   FILE *fp = fopen("bf.dump", "w");
   int i;
